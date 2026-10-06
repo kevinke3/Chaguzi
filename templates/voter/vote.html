@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Vote — {{ election.name }}{% endblock %}
+{% block page_title %}Voting: {{ election.name }}{% endblock %}
+{% block body_class %}voter voting{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Voting page-specific polish (kept inline to avoid bloating style.css) */
+    .vote-intro {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+        color: #fff;
+        border-radius: var(--radius);
+        padding: 22px 24px;
+        margin-bottom: 22px;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .vote-intro-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: rgba(255,255,255,.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 1px solid rgba(255,255,255,.15);
+    }
+    .vote-intro-icon svg { width: 22px; height: 22px; stroke: #fff; }
+    .vote-intro-text { flex: 1; min-width: 200px; }
+    .vote-intro-text strong {
+        display: block;
+        font-size: 1.02rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 3px;
+    }
+    .vote-intro-text small {
+        color: rgba(255,255,255,.75);
+        font-size: 0.82rem;
+    }
+
+    /* Loading state shown before voting.js boots */
+    .voting-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        gap: 16px;
+        color: var(--gray-500);
+        font-size: 0.9rem;
+    }
+    .voting-spinner {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 3px solid var(--gray-200);
+        border-top-color: var(--blue);
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="voting-app">
+
+    <div class="vote-intro">
+        <div class="vote-intro-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4"/>
+                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/>
+            </svg>
+        </div>
+        <div class="vote-intro-text">
+            <strong>{{ election.name }}</strong>
+            <small>
+                You are voting as
+                <strong style="color:#fff;">{{ current_user.full_name }}</strong>
+                {% if current_user.voter_id %} &middot; ID: {{ current_user.voter_id }}{% endif %}
+            </small>
+        </div>
+    </div>
+
+    <div id="votingApp"
+         data-election-id="{{ election.id }}"
+         data-positions='{{ positions|tojson }}'>
+        <div class="voting-loading">
+            <div class="voting-spinner"></div>
+            <span>Preparing your ballot&hellip;</span>
+        </div>
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/voting.js') }}"></script>
+{% endblock %}

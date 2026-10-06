@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Results - {{ election.name }}{% endblock %}
+{% block page_title %}Results: {{ election.name }}{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="row-space">
+        <div>
+            <span class="badge badge-{{ election.effective_status }}">{{ election.effective_status }}</span>
+            <span>Visibility: <strong>{{ election.result_visibility }}</strong></span>
+        </div>
+        <div id="lastUpdated" class="muted small"></div>
+    </div>
+</div>
+
+<div id="resultsContainer">
+    <div class="skeleton">Loading results...</div>
+</div>
+
+<script>
+window.ELECTION_ID = {{ election.id }};
+window.RESULTS_POLL_MS = 5000;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/results.js') }}"></script>
+{% endblock %}

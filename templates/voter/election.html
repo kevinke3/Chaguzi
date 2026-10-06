@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ election.name }}{% endblock %}
+{% block page_title %}{{ election.name }}{% endblock %}
+{% block body_class %}voter{% endblock %}
+
+{% block content %}
+<div class="panel election-info">
+    <span class="badge badge-{{ election.effective_status }}">{{ election.effective_status }}</span>
+    <p>{{ election.description or '' }}</p>
+    <div class="meta-row">
+        <span>Start: {{ election.start_date.strftime('%b %d, %Y %H:%M') }}</span>
+        <span>End: {{ election.end_date.strftime('%b %d, %Y %H:%M') }}</span>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h2>Your Voting Progress</h2></div>
+    {% set total = election.positions.count() %}
+    {% set done = voted_positions.values()|select|list|length %}
+    <div class="progress-bar-lg">
+        <div style="width: {{ (done / total * 100) if total else 0 }}%"></div>
+    </div>
+    <p class="muted">{{ done }} of {{ total }} position(s) voted</p>
+
+    {% if election.status == 'active' and done < total %}
+    <a href="{{ url_for('voter.vote_page', election_id=election.id) }}" class="btn btn-primary btn-lg">Continue Voting</a>
+    {% elif done >= total and total > 0 %}
+    <p class="success-text">✓ You have completed voting in this election.</p>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h2>Positions</h2></div>
+    {% for pos in election.positions %}
+    <div class="position-status-row">
+        <div>
+            <strong>{{ pos.title }}</strong>
+            <small>{{ pos.candidates.count() }} candidate(s)</small>
+        </div>
+        {% if voted_positions.get(pos.id) %}
+            <span class="badge badge-active">✓ Voted</span>
+        {% else %}
+            <span class="badge badge-scheduled">Not voted</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

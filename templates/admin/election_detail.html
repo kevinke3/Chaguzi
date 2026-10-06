@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ election.name }}{% endblock %}
+{% block page_title %}{{ election.name }}{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="detail-header panel">
+    <div class="row-space">
+        <div>
+            <h1>{{ election.name }}</h1>
+            <p class="muted">{{ election.description or '' }}</p>
+            <div class="meta-row">
+                <span class="badge badge-{{ election.effective_status }}">{{ election.effective_status }}</span>
+                <span>{{ election.start_date.strftime('%b %d, %Y %H:%M') }} → {{ election.end_date.strftime('%b %d, %Y %H:%M') }}</span>
+                <span>Visibility: <strong>{{ election.result_visibility }}</strong></span>
+            </div>
+        </div>
+        <div class="detail-actions">
+            <a href="{{ url_for('admin.election_edit', election_id=election.id) }}" class="btn btn-outline">Edit</a>
+            <a href="{{ url_for('admin.election_results', election_id=election.id) }}" class="btn btn-primary">Results</a>
+        </div>
+    </div>
+
+    <div class="stat-row">
+        <div class="mini-stat"><strong>{{ total_eligible }}</strong><span>Eligible</span></div>
+        <div class="mini-stat"><strong>{{ total_voted }}</strong><span>Voted</span></div>
+        <div class="mini-stat"><strong>{{ turnout }}%</strong><span>Turnout</span></div>
+    </div>
+
+    <div class="status-actions">
+        <form method="POST" action="{{ url_for('admin.election_status', election_id=election.id) }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="status">
+                <option value="draft">Draft</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="active" {{ 'selected' if election.status=='active' }}>Open</option>
+                <option value="closed" {{ 'selected' if election.status=='closed' }}>Close</option>
+            </select>
+            <button class="btn btn-outline btn-sm">Update Status</button>
+        </form>
+        {% if election.status in ('closed', 'announced') and not election.is_finalized %}
+        <form method="POST" action="{{ url_for('admin.election_status', election_id=election.id) }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="announced">
+            <button class="btn btn-primary btn-sm">🔔 Announce Results</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header row-space">
+        <h2>Positions & Candidates</h2>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('addPositionModal').classList.add('open')">+ Add Position</button>
+    </div>
+
+    {% if election.positions.count() == 0 %}
+    <div class="empty-state">
+        <h3>No positions yet</h3>
+        <p>Add a position (e.g. President, Secretary) to start adding candidates.</p>
+    </div>
+    {% else %}
+        {% for pos in election.positions %}
+        <div class="position-block">
+            <div class="row-space">
+                <h3>{{ pos.title }}</h3>
+                <button class="btn btn-sm btn-outline"
+                        onclick="openAddCandidate({{ pos.id }}, '{{ pos.title|e }}')">+ Candidate</button>
+            </div>
+            {% if pos.description %}<p class="muted">{{ pos.description }}</p>{% endif %}
+
+            <div class="candidate-grid">
+                {% for c in pos.candidates %}
+                <div class="candidate-card" data-id="{{ c.id }}">
+                    <div class="cand-photo">
+                        {% if c.photo %}
+                            <img src="{{ url_for('static', filename=c.photo) }}" alt="{{ c.name }}">
+                        {% else %}
+                            <span>{{ c.name[0]|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="cand-info">
+                        <strong>{{ c.name }}</strong>
+                        <small>{{ c.description or '' }}</small>
+                    </div>
+                    <div class="cand-actions">
+                        <button class="btn btn-sm btn-ghost"
+                                onclick="deleteCandidate({{ c.id }})">Delete</button>
+                    </div>
+                </div>
+                {% else %}
+                <p class="empty">No candidates yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Add Position Modal -->
+<div class="modal" id="addPositionModal">
+    <div class="modal-card">
+        <h3>Add Position</h3>
+        <form method="POST" action="{{ url_for('admin.add_position_route', election_id=election.id) }}" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" required placeholder="e.g. Chairperson">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="2"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Add</button>
+                <button type="button" class="btn btn-ghost" onclick="this.closest('.modal').classList.remove('open')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Candidate Modal -->
+<div class="modal" id="addCandidateModal">
+    <div class="modal-card">
+        <h3>Add Candidate to <span id="candPosTitle"></span></h3>
+        <form method="POST" id="addCandidateForm" enctype="multipart/form-data" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Name *</label>
+                <input type="text" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Photo</label>
+                <input type="file" name="photo" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description">
+            </div>
+            <div class="form-group">
+                <label>Manifesto</label>
+                <textarea name="manifesto" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Identifier (optional)</label>
+                <input type="text" name="identifier">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Add Candidate</button>
+                <button type="button" class="btn btn-ghost" onclick="this.closest('.modal').classList.remove('open')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

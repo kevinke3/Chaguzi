@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ election.name }} Results{% endblock %}
+{% block body_class %}public-results{% endblock %}
+
+{% block public_content %}
+<div class="landing-nav">
+    <div class="landing-container nav-inner">
+        <div class="landing-brand"><span class="brand-mark">C</span><strong>Chaguzi</strong></div>
+        <div><a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a></div>
+    </div>
+</div>
+
+<div class="landing-container results-public">
+    <h1>{{ election.name }}</h1>
+    <p>{{ org.name }} — {{ election.description or '' }}</p>
+
+    {% if allowed %}
+    <div id="resultsContainer"><div class="skeleton">Loading...</div></div>
+    <script>
+    window.ELECTION_ID = {{ election.id }};
+    window.RESULTS_POLL_MS = 0;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/results.js') }}"></script>
+    {% else %}
+    <div class="panel"><p>Public results are not enabled for this election.</p></div>
+    {% endif %}
+</div>
+{% endblock %}

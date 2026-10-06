@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block body_class %}voter{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="panel-header">
+        <h2>{{ title }}</h2>
+        <p class="muted small" style="margin-top:4px;">{{ subtitle }}</p>
+    </div>
+
+    {% if elections %}
+        {% for e in elections %}
+        <div class="election-card">
+            <div class="ec-body">
+                <div class="row-space" style="margin-bottom:6px;">
+                    <h3>{{ e.name }}</h3>
+                    <span class="badge badge-{{ e.effective_status }}">{{ e.effective_status }}</span>
+                </div>
+                <p class="muted small">{{ e.description or '' }}</p>
+                <div class="meta-row small">
+                    <span>Opens {{ e.start_date.strftime('%b %d, %Y %H:%M') }}</span>
+                    <span class="dot-sep">&middot;</span>
+                    <span>Closes {{ e.end_date.strftime('%b %d, %Y %H:%M') }}</span>
+                    <span class="dot-sep">&middot;</span>
+                    <span>{{ e.positions.count() }} position(s)</span>
+                </div>
+            </div>
+            <div class="ec-actions">
+                {% if section == 'active' %}
+                    {% if voted_map.get(e.id) %}
+                        <span class="badge badge-active">Voted</span>
+                        <a href="{{ url_for('voter.election_view', election_id=e.id) }}" class="btn btn-outline btn-sm">View</a>
+                    {% else %}
+                        <a href="{{ url_for('voter.vote_page', election_id=e.id) }}" class="btn btn-primary btn-sm">Vote Now</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('voter.election_results', election_id=e.id) }}" class="btn btn-outline btn-sm">View Results</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <h3>No {{ title|lower }}</h3>
+            <p>
+                {% if section == 'active' %}
+                    There are currently no open elections. Check back soon.
+                {% else %}
+                    Completed elections will appear here after they close.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

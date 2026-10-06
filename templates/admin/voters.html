@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Voters{% endblock %}
+{% block page_title %}Voters{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="panel-header"><h2>Registered Voters</h2></div>
+
+    <form method="GET" class="filter-bar">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search name, email, ID...">
+        <select name="status">
+            <option value="">All</option>
+            <option value="active" {{ 'selected' if status=='active' }}>Active</option>
+            <option value="inactive" {{ 'selected' if status=='inactive' }}>Inactive</option>
+            <option value="pending" {{ 'selected' if status=='pending' }}>Pending approval</option>
+        </select>
+        <button class="btn btn-outline">Filter</button>
+    </form>
+
+    {% if voters %}
+    <table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Voter ID</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for v in voters %}
+            <tr>
+                <td>{{ v.full_name }}</td>
+                <td>{{ v.email }}</td>
+                <td>{{ v.voter_id or '—' }}</td>
+                <td>
+                    {% if not v.is_approved %}<span class="badge badge-scheduled">Pending</span>
+                    {% elif v.is_active %}<span class="badge badge-active">Active</span>
+                    {% else %}<span class="badge badge-closed">Inactive</span>{% endif %}
+                </td>
+                <td class="actions">
+                    <button class="btn btn-sm btn-ghost" onclick="toggleVoter({{ v.id }})">
+                        {{ 'Deactivate' if v.is_active else 'Activate' }}
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}<a href="?page={{ pagination.prev_num }}&q={{ q }}&status={{ status }}" class="btn btn-sm btn-ghost">← Prev</a>{% endif %}
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}<a href="?page={{ pagination.next_num }}&q={{ q }}&status={{ status }}" class="btn btn-sm btn-ghost">Next →</a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state"><h3>No voters found</h3><p>Voters appear here once they register.</p></div>
+    {% endif %}
+</div>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

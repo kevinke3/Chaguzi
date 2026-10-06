@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs{% endblock %}
+{% block page_title %}Audit Logs{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="panel-header"><h2>Activity Log</h2></div>
+    {% if pagination.items %}
+    <table class="table">
+        <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Description</th><th>IP</th></tr></thead>
+        <tbody>
+            {% for log in pagination.items %}
+            <tr>
+                <td>{{ log.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                <td>{{ log.actor.full_name if log.actor else 'System' }}</td>
+                <td><span class="tag">{{ log.action }}</span></td>
+                <td>{{ log.entity_type }}{% if log.entity_id %} #{{ log.entity_id }}{% endif %}</td>
+                <td>{{ log.description or '' }}</td>
+                <td><small>{{ log.ip_address or '' }}</small></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}<a href="?page={{ pagination.prev_num }}" class="btn btn-sm btn-ghost">← Prev</a>{% endif %}
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}<a href="?page={{ pagination.next_num }}" class="btn btn-sm btn-ghost">Next →</a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state"><h3>No activity yet</h3></div>
+    {% endif %}
+</div>
+{% endblock %}

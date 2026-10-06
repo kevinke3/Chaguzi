@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="dash-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Voters</div>
+        <div class="stat-value">{{ total_voters }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Active Elections</div>
+        <div class="stat-value">{{ active_elections|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Candidates</div>
+        <div class="stat-value">{{ total_candidates }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Turnout (active)</div>
+        <div class="stat-value">{{ turnout }}%</div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <a href="{{ url_for('admin.election_new') }}" class="btn btn-primary">+ New Election</a>
+    <a href="{{ url_for('admin.voters') }}" class="btn btn-outline">Manage Voters</a>
+    <a href="{{ url_for('admin.settings') }}" class="btn btn-outline">Settings</a>
+</div>
+
+<div class="two-col">
+    <section class="panel">
+        <div class="panel-header"><h2>Active & Upcoming Elections</h2></div>
+        {% if active_elections %}
+            {% for e in active_elections %}
+            <div class="election-row">
+                <div>
+                    <strong>{{ e.name }}</strong>
+                    <small>Ends {{ e.end_date.strftime('%b %d, %Y %H:%M') }}</small>
+                </div>
+                <span class="badge badge-active">Active</span>
+                <a href="{{ url_for('admin.election_detail', election_id=e.id) }}" class="btn btn-sm btn-ghost">View</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty">No active elections.</p>
+        {% endif %}
+
+        {% if upcoming %}
+            <h3 class="subhead">Upcoming</h3>
+            {% for e in upcoming %}
+            <div class="election-row">
+                <div>
+                    <strong>{{ e.name }}</strong>
+                    <small>Starts {{ e.start_date.strftime('%b %d, %Y %H:%M') }}</small>
+                </div>
+                <span class="badge badge-scheduled">Scheduled</span>
+                <a href="{{ url_for('admin.election_detail', election_id=e.id) }}" class="btn btn-sm btn-ghost">View</a>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-header"><h2>Recent Activity</h2></div>
+        {% if recent %}
+            <ul class="activity-list">
+                {% for r in recent %}
+                <li>
+                    <span class="activity-action">{{ r.action }}</span>
+                    <span class="activity-desc">{{ r.description or '' }}</span>
+                    <small>{{ r.created_at.strftime('%b %d, %H:%M') }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty">No recent activity.</p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="panel">
+    <div class="panel-header"><h2>Participation Overview</h2></div>
+    <div class="chart-wrap">
+        <canvas id="participationChart" height="90"></canvas>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+window.CHART_DATA = {
+    labels: {{ chart_labels|tojson }},
+    votes: {{ chart_votes|tojson }},
+    eligible: {{ chart_eligible|tojson }},
+};
+</script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

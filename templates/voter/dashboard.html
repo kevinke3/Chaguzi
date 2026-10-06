@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Voter Dashboard{% endblock %}
+{% block page_title %}Welcome, {{ current_user.full_name.split()[0] }}{% endblock %}
+{% block body_class %}voter{% endblock %}
+
+{% block content %}
+<div class="org-banner">
+    <div class="org-banner-info">
+        {% if org.logo %}
+            <img src="{{ url_for('static', filename=org.logo) }}" alt="Logo" class="org-logo-sm">
+        {% else %}
+            <div class="avatar">{{ org.name[0]|upper }}</div>
+        {% endif %}
+        <div>
+            <strong>{{ org.name }}</strong>
+            <small>{{ org.org_type|capitalize }}{% if org.location %} &middot; {{ org.location }}{% endif %}</small>
+        </div>
+    </div>
+    <div class="voter-id">
+        ID: <strong>{{ current_user.voter_id or '—' }}</strong>
+    </div>
+</div>
+
+<div class="dash-grid">
+    <a href="{{ url_for('voter.active_elections') }}" class="stat-card" style="text-decoration:none;">
+        <div class="stat-label">Active Elections</div>
+        <div class="stat-value">{{ active_count }}</div>
+    </a>
+    <a href="{{ url_for('voter.completed_elections') }}" class="stat-card" style="text-decoration:none;">
+        <div class="stat-label">Completed Elections</div>
+        <div class="stat-value">{{ completed_count }}</div>
+    </a>
+    <div class="stat-card">
+        <div class="stat-label">Upcoming</div>
+        <div class="stat-value">{{ upcoming|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Your ID</div>
+        <div class="stat-value" style="font-size:1.15rem;">{{ current_user.voter_id or '—' }}</div>
+    </div>
+</div>
+
+<section class="panel">
+    <div class="panel-header row-space">
+        <h2>Currently Open</h2>
+        {% if active_count > 0 %}
+        <a href="{{ url_for('voter.active_elections') }}" class="btn btn-ghost btn-sm">View all</a>
+        {% endif %}
+    </div>
+    {% if active_preview %}
+        {% for e in active_preview %}
+        <div class="election-card">
+            <div class="ec-body">
+                <h3>{{ e.name }}</h3>
+                <p class="muted">{{ e.description or '' }}</p>
+                <div class="meta-row small">
+                    <span>Closes {{ e.end_date.strftime('%b %d, %Y %H:%M') }}</span>
+                    <span class="dot-sep">&middot;</span>
+                    <span>{{ e.positions.count() }} position(s)</span>
+                </div>
+            </div>
+            <div class="ec-actions">
+                {% if voted_map.get(e.id) %}
+                    <span class="badge badge-active">Voted</span>
+                    <a href="{{ url_for('voter.election_view', election_id=e.id) }}" class="btn btn-outline btn-sm">View</a>
+                {% else %}
+                    <a href="{{ url_for('voter.vote_page', election_id=e.id) }}" class="btn btn-primary btn-sm">Vote Now</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <h3>No active elections</h3>
+            <p>There is nothing open for voting right now. Check back soon.</p>
+        </div>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <div class="panel-header"><h2>Upcoming Elections</h2></div>
+    {% if upcoming %}
+        {% for e in upcoming %}
+        <div class="election-row">
+            <div>
+                <strong>{{ e.name }}</strong>
+                <small>Opens {{ e.start_date.strftime('%b %d, %Y %H:%M') }}</small>
+            </div>
+            <span class="badge badge-scheduled">Scheduled</span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">No upcoming elections.</p>
+    {% endif %}
+</section>
+{% endblock %}

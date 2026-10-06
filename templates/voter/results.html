@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Results - {{ election.name }}{% endblock %}
+{% block page_title %}Results: {{ election.name }}{% endblock %}
+{% block body_class %}voter{% endblock %}
+
+{% block content %}
+{% if not visible %}
+<div class="panel">
+    <div class="empty-state">
+        <h3>Results Not Yet Available</h3>
+        <p>Results for this election will be available according to the organization's visibility settings.</p>
+    </div>
+</div>
+{% else %}
+<div id="resultsContainer"><div class="skeleton">Loading...</div></div>
+<script>
+window.ELECTION_ID = {{ election.id }};
+window.RESULTS_POLL_MS = {{ 5000 if election.status == 'active' else 0 }};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/results.js') }}"></script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Organization Settings{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <form method="POST" enctype="multipart/form-data" class="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="settings-logo">
+            {% if org.logo %}
+                <img src="{{ url_for('static', filename=org.logo) }}" alt="Logo" class="logo-preview">
+            {% else %}
+                <div class="logo-placeholder">{{ org.name[0]|upper }}</div>
+            {% endif %}
+            <div>
+                <label for="logo">Change Logo</label>
+                <input type="file" name="logo" id="logo" accept="image/*">
+            </div>
+        </div>
+
+        <div class="form-row-2">
+            <div class="form-group">
+                <label>Organization Name</label>
+                <input type="text" name="name" value="{{ org.name }}" required>
+            </div>
+            <div class="form-group">
+                <label>Organization Type</label>
+                <select name="org_type">
+                    {% for t in ['school','university','college','company','church','sacco','association','institution','other'] %}
+                    <option value="{{ t }}" {{ 'selected' if org.org_type==t }}>{{ t|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-row-2">
+            <div class="form-group"><label>Email</label><input type="email" name="email" value="{{ org.email }}"></div>
+            <div class="form-group"><label>Phone</label><input type="text" name="phone" value="{{ org.phone or '' }}"></div>
+        </div>
+        <div class="form-row-2">
+            <div class="form-group"><label>Location</label><input type="text" name="location" value="{{ org.location or '' }}"></div>
+            <div class="form-group"><label>Registration Number</label><input type="text" name="registration_number" value="{{ org.registration_number or '' }}"></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea name="description" rows="3">{{ org.description or '' }}</textarea></div>
+
+        <h3 class="field-group-title">Voter Settings</h3>
+        <div class="form-group">
+            <label class="checkbox">
+                <input type="checkbox" name="voter_id_required" {{ 'checked' if org.voter_id_required }}>
+                Require identification when voters register
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Voter ID Label</label>
+            <input type="text" name="voter_id_label" value="{{ org.voter_id_label }}">
+        </div>
+        <div class="form-group">
+            <label class="checkbox">
+                <input type="checkbox" name="allow_public_results" {{ 'checked' if org.allow_public_results }}>
+                Allow public result viewing for announced elections
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Elections{% endblock %}
+{% block page_title %}Elections{% endblock %}
+{% block body_class %}admin{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="panel-header row-space">
+        <h2>All Elections</h2>
+        <a href="{{ url_for('admin.election_new') }}" class="btn btn-primary">+ New Election</a>
+    </div>
+
+    <form method="GET" class="filter-bar">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search elections...">
+        <select name="status">
+            <option value="">All statuses</option>
+            <option value="draft" {{ 'selected' if status=='draft' }}>Draft</option>
+            <option value="scheduled" {{ 'selected' if status=='scheduled' }}>Scheduled</option>
+            <option value="active" {{ 'selected' if status=='active' }}>Active</option>
+            <option value="closed" {{ 'selected' if status=='closed' }}>Closed</option>
+            <option value="announced" {{ 'selected' if status=='announced' }}>Announced</option>
+        </select>
+        <button class="btn btn-outline">Filter</button>
+    </form>
+
+    {% if elections %}
+    <table class="table">
+        <thead>
+            <tr><th>Name</th><th>Type</th><th>Status</th><th>Start</th><th>End</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for e in elections %}
+            <tr>
+                <td><strong>{{ e.name }}</strong></td>
+                <td>{{ e.election_type }}</td>
+                <td><span class="badge badge-{{ e.effective_status }}">{{ e.effective_status }}</span></td>
+                <td>{{ e.start_date.strftime('%b %d, %Y %H:%M') }}</td>
+                <td>{{ e.end_date.strftime('%b %d, %Y %H:%M') }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('admin.election_detail', election_id=e.id) }}" class="btn btn-sm btn-ghost">Manage</a>
+                    <a href="{{ url_for('admin.election_results', election_id=e.id) }}" class="btn btn-sm btn-ghost">Results</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="?page={{ pagination.prev_num }}&q={{ q }}&status={{ status }}" class="btn btn-sm btn-ghost">← Prev</a>
+        {% endif %}
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}
+        <a href="?page={{ pagination.next_num }}&q={{ q }}&status={{ status }}" class="btn btn-sm btn-ghost">Next →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <h3>No elections yet</h3>
+        <p>Create your first election to get started.</p>
+        <a href="{{ url_for('admin.election_new') }}" class="btn btn-primary">+ New Election</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

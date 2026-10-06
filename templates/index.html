@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Modern Secure Electronic Voting{% endblock %}
+{% block body_class %}landing{% endblock %}
+
+{% block public_content %}
+<nav class="landing-nav">
+    <div class="landing-container nav-inner">
+        <div class="landing-brand">
+            <span class="brand-mark">C</span>
+            <strong>Chaguzi</strong>
+        </div>
+        <div class="landing-nav-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="landing-container">
+        <div class="hero-grid">
+            <div class="hero-text">
+                <span class="eyebrow">Modern &middot; Secure &middot; Multi-Organization</span>
+                <h1>Electronic voting for <span class="accent">schools, companies, churches</span> and institutions.</h1>
+                <p class="hero-sub">
+                    Chaguzi is a complete, secure, and modular voting platform.
+                    Register your organization, create elections, manage candidates,
+                    and let your members vote with confidence — one vote per position, enforced end to end.
+                </p>
+                <div class="hero-cta">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started Free</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg">Login</a>
+                </div>
+                <div class="hero-stats">
+                    <div><strong>{{ org_count }}</strong><span>Organizations</span></div>
+                    <div><strong>{{ election_count }}</strong><span>Elections Run</span></div>
+                    <div><strong>1</strong><span>Vote / Position</span></div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="card-visual">
+                    <div class="cv-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="cv-body">
+                        <div class="cv-row">
+                            <span class="tag">Chairperson</span>
+                            <span class="badge-soft">Vote</span>
+                        </div>
+                        <div class="cv-candidate">
+                            <div class="cv-photo">A</div>
+                            <div>
+                                <strong>Amina Yusuf</strong>
+                                <small>Progress &amp; Inclusion</small>
+                            </div>
+                            <span class="pct">62%</span>
+                        </div>
+                        <div class="cv-bar"><div style="width:62%"></div></div>
+                        <div class="cv-candidate">
+                            <div class="cv-photo">B</div>
+                            <div>
+                                <strong>Brian Otieno</strong>
+                                <small>Unity &amp; Growth</small>
+                            </div>
+                            <span class="pct">38%</span>
+                        </div>
+                        <div class="cv-bar small"><div style="width:38%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="how-it-works">
+    <div class="landing-container">
+        <h2>How Chaguzi Works</h2>
+        <p class="section-sub">From registration to announcement — a complete, transparent election workflow.</p>
+        <div class="steps-grid">
+            <div class="step-card">
+                <span class="step-num">1</span>
+                <h3>Register Your Organization</h3>
+                <p>Administrators register their school, church, company, or SACCO with all necessary details.</p>
+            </div>
+            <div class="step-card">
+                <span class="step-num">2</span>
+                <h3>Voters Join</h3>
+                <p>Members register under their organization using their membership or employee ID.</p>
+            </div>
+            <div class="step-card">
+                <span class="step-num">3</span>
+                <h3>Create Elections</h3>
+                <p>Set up elections, positions, candidates, schedules, and result visibility options.</p>
+            </div>
+            <div class="step-card">
+                <span class="step-num">4</span>
+                <h3>Vote Securely</h3>
+                <p>Each voter casts one vote per position. Duplicate votes are blocked at every layer.</p>
+            </div>
+            <div class="step-card">
+                <span class="step-num">5</span>
+                <h3>Watch Live Results</h3>
+                <p>Optional live results or results after close — your choice, clearly visualized.</p>
+            </div>
+            <div class="step-card">
+                <span class="step-num">6</span>
+                <h3>Announce Winners</h3>
+                <p>Review final results, announce winners, and preserve a full audit history.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="landing-container">
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3>Secure by Design</h3>
+                <p>Hashed passwords, CSRF protection, parameterized queries, unique vote constraints, and role-based access.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01"/><path d="M9 13h.01"/><path d="M9 17h.01"/><path d="M15 9h.01"/><path d="M15 13h.01"/><path d="M15 17h.01"/></svg>
+                </div>
+                <h3>Multi-Organization</h3>
+                <p>Each organization sees only its own voters, elections, candidates, and results.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <h3>Live &amp; Final Results</h3>
+                <p>Choose to keep results hidden, show them live, or reveal after the election closes.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                </div>
+                <h3>Responsive</h3>
+                <p>Clean, modern UI that works perfectly on desktop, tablet, and mobile devices.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="landing-footer">
+    <div class="landing-container">
+        <div><strong>Chaguzi</strong> — Modern Electronic Voting Platform</div>
+        <div class="footer-links">
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a href="{{ url_for('auth.register') }}">Register</a>
+        </div>
+    </div>
+</footer>
+{% endblock %}
